@@ -7,5 +7,7 @@
     public NeuronLayer(int countNeurons)
     {
         CountNeurons = countNeurons;
+
+        Neurons = new Neuron[countNeurons];
     }
 }
