@@ -57,4 +57,9 @@
 
         return C;
     }
+
+    public static float ReLu(float value)
+    {
+        return value > 0 ? value : 0f;
+    }
 }

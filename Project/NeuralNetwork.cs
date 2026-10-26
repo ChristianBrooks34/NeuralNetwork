@@ -4,9 +4,29 @@ using System.Diagnostics;
 
 public class NeuralNetwork
 {
-    public NeuralNetwork(int inputNeuron, int outputNeuron, NeuronLayer[] neuronLayers)
-    {
+    private readonly NeuronLayer _inputNeurons;
+    private readonly NeuronLayer _outputNeurons;
+    private readonly NeuronLayer[] _neuronLayers;
 
+    public NeuralNetwork(int countInputNeurons, int countOutputNeurons, params NeuronLayer[] neuronLayers)
+    {
+        _neuronLayers = neuronLayers;
+
+        _inputNeurons = new NeuronLayer(countInputNeurons);
+        _inputNeurons.Initialize(0);
+
+        foreach (var neuronLayer in neuronLayers)
+        {
+            neuronLayer.Initialize(neuronLayer.CountNeurons);
+        }
+
+        _outputNeurons = new NeuronLayer(countOutputNeurons);
+        _outputNeurons.Initialize(neuronLayers[neuronLayers.Length - 1].CountNeurons);
+    }
+
+    public float[] Forget()
+    {
+        return null;
     }
 
     public void TrainLinearModel(int a, int B, float lr, int n, int yTrue)
@@ -53,4 +73,5 @@ public class NeuralNetwork
     {
         
     }
+
 }
