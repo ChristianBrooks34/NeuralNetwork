@@ -1,4 +1,6 @@
-﻿public static class NeuralMath
+﻿using System.Net.NetworkInformation;
+
+public static class NeuralMath
 {
     public static float[] MultiplyMatrixVector(float[,] weights, float[] inputs, float[] biases)
     {
@@ -61,5 +63,10 @@
     public static float ReLu(float value)
     {
         return value > 0 ? value : 0f;
+    }
+
+    public static float EvaluateLoss(float[] inputs, float[] outputs)
+    {
+        return 0f;
     }
 }

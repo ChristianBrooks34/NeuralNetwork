@@ -24,9 +24,33 @@ public class NeuralNetwork
         _outputNeurons.Initialize(neuronLayers[neuronLayers.Length - 1].CountNeurons);
     }
 
-    public float[] Forget()
+    public float[] Predict(float[] inputs)
     {
-        return null;
+        if (inputs.Length != _inputNeurons.CountNeurons)
+            throw new ArgumentException("Размер входа не совпадает с входным слоем.");
+
+        for (int i = 0; i < inputs.Length; i++)
+        {
+            _inputNeurons.Neurons[i].Output = inputs[i];
+        }
+
+        Neuron[] currentOutputs = _inputNeurons.Neurons.ToArray();
+
+        foreach (var layer in _neuronLayers)
+        {
+            layer.Forward(currentOutputs);
+            currentOutputs = layer.Neurons.ToArray();
+        }
+
+        _outputNeurons.Forward(currentOutputs);
+        var finalOutputs = _outputNeurons.Neurons.ToArray();
+
+        return finalOutputs.Select(n => n.Output).ToArray();
+    }
+
+    public void Train(float[] inputs, float[] targets, float learningRate)
+    {
+        
     }
 
     public void TrainLinearModel(int a, int B, float lr, int n, int yTrue)
@@ -73,5 +97,4 @@ public class NeuralNetwork
     {
         
     }
-
 }
