@@ -65,8 +65,8 @@ public static class NeuralMath
         return value > 0 ? value : 0f;
     }
 
-    public static float EvaluateLoss(float[] inputs, float[] outputs)
+    public static float EvaluateLoss(float trueValue, float output)
     {
-        return 0f;
+        return (trueValue - output) * (trueValue - output);
     }
 }
