@@ -1,8 +1,13 @@
-﻿public class NeuronLayer
+﻿using MathNet.Numerics.Distributions;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
+
+public class NeuronLayer
 {
     public int CountNeurons { get; private set; }
 
-    public List<Neuron> Neurons { get; private set; }
+    public Matrix<float> W;
+    public Vector<float> B;
 
     public NeuronLayer(int countNeurons)
     {
@@ -11,26 +16,12 @@
 
     public void Initialize(int countWeights)
     {
-        Neurons = CreateNeurons(CountNeurons, countWeights);
+        W = Matrix<float>.Build.Random(CountNeurons, countWeights, new Normal(0, Math.Sqrt(2.0 / countWeights)));
+        B = Vector<float>.Build.Dense(CountNeurons);
     }
 
-    public void Forward(Neuron[] inputNeurons)
+    public Vector<float> Forward(Vector<float> inputs)
     {
-        for (int i = 0; i < CountNeurons; i++)
-        {
-            Neurons[i].Forward(inputNeurons);
-        }
-    }
-
-    private List<Neuron> CreateNeurons(int countNeurons, int countWeights)
-    {
-        List<Neuron> neurons = new List<Neuron>(countNeurons);
-
-        for (int i = 0; i < countNeurons; i++)
-        {
-            neurons.Add(new Neuron(countWeights));
-        }
-
-        return neurons;
+        return NeuralMath.ReLu((W * inputs) + B);
     }
 }

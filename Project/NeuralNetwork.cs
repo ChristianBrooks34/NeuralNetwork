@@ -1,51 +1,51 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System;
-using System.Diagnostics;
+﻿using MathNet.Numerics.Distributions;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
+using System.Reflection.Emit;
 
 public class NeuralNetwork
 {
-    private readonly NeuronLayer _inputNeurons;
-    private readonly NeuronLayer _outputNeurons;
-    private readonly NeuronLayer[] _neuronLayers;
+    private readonly NeuronLayer[] _layers;
+    private readonly Vector<float> _inputVector;
+    private readonly float _learningRate;
 
-    public NeuralNetwork(int countInputNeurons, int countOutputNeurons, params NeuronLayer[] neuronLayers)
+    public NeuralNetwork(int inputCount, float learningRate, params NeuronLayer[] layers)
     {
-        _neuronLayers = neuronLayers;
+        if (inputCount <= 0)
+            throw new ArgumentException("Количество входов должно быть больше нуля.");
 
-        _inputNeurons = new NeuronLayer(countInputNeurons);
-        _inputNeurons.Initialize(0);
+        if (layers == null || layers.Length == 0)
+            throw new ArgumentException("Сеть должна содержать хотя бы один слой.");
 
-        foreach (var neuronLayer in neuronLayers)
+        _layers = layers;
+        _learningRate = learningRate;
+        _inputVector = Vector<float>.Build.Dense(inputCount);
+
+        int previousLayerSize = inputCount;
+        for (int i = 0; i < _layers.Length; i++)
         {
-            neuronLayer.Initialize(neuronLayer.CountNeurons);
+            _layers[i].Initialize(previousLayerSize);
+            previousLayerSize = _layers[i].CountNeurons;
         }
-
-        _outputNeurons = new NeuronLayer(countOutputNeurons);
-        _outputNeurons.Initialize(neuronLayers[neuronLayers.Length - 1].CountNeurons);
     }
 
-    public float[] Predict(float[] inputs)
+    public Vector<float> Predict(float[] inputs)
     {
-        if (inputs.Length != _inputNeurons.CountNeurons)
-            throw new ArgumentException("Размер входа не совпадает с входным слоем.");
+        if (inputs == null || inputs.Length != _inputVector.Count)
+            throw new ArgumentException($"Ожидалось входов: {_inputVector.Count}, получено: {inputs?.Length ?? 0}.");
 
         for (int i = 0; i < inputs.Length; i++)
         {
-            _inputNeurons.Neurons[i].Output = inputs[i];
+            _inputVector[i] = inputs[i];
         }
 
-        Neuron[] currentOutputs = _inputNeurons.Neurons.ToArray();
-
-        foreach (var layer in _neuronLayers)
+        Vector<float> currentSignal = _inputVector;
+        for (int i = 0; i < _layers.Length; i++)
         {
-            layer.Forward(currentOutputs);
-            currentOutputs = layer.Neurons.ToArray();
+            currentSignal = _layers[i].Forward(currentSignal);
         }
 
-        _outputNeurons.Forward(currentOutputs);
-        var finalOutputs = _outputNeurons.Neurons.ToArray();
-
-        return finalOutputs.Select(n => n.Output).ToArray();
+        return currentSignal;
     }
 
     public void Train(float[] inputs, float[] targets, float learningRate)
